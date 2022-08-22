@@ -2,7 +2,7 @@
 
 FROM python:3.8-slim-buster
 
-WORKDIR /yolov3-flask
+WORKDIR /ppe-detection
 
 COPY requirements.txt requirements.txt
 
