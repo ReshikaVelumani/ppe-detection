@@ -185,7 +185,8 @@ def image_processing(graph, category_index, image_file_name, show_video_window):
             warning_message = post_message(1, output_dict, image_file_name, 0.50)
             print(warning_message)
             if warning_message == False:
-                return json.dumps(image_file_name.tolist())
+                red_image = cv2.resize(image_file_name, dsize=(800, 500), interpolation=cv2.INTER_CUBIC)
+                return json.dumps(red_image.tolist())
             else: 
                 # with open('data/results/'+filename[-1][:-4]+'.txt', 'w') as f:
                 #     f.write(str(warning_message))
