@@ -183,27 +183,31 @@ def image_processing(graph, category_index, image_file_name, show_video_window):
             # image = image_file_name.numpy()
             output_dict = run_inference_for_single_image(image_expanded, sess, tensor_dict)
             warning_message = post_message(1, output_dict, image_file_name, 0.50)
-            # with open('data/results/'+filename[-1][:-4]+'.txt', 'w') as f:
-            #     f.write(str(warning_message))
-           
-            vis_utils.visualize_boxes_and_labels_on_image_array(
-                image_file_name,
-                output_dict['detection_boxes'],
-                output_dict['detection_classes'],
-                output_dict['detection_scores'],
-                category_index,
-                warning_message,
-                instance_masks=output_dict.get('detection_masks'),
-                use_normalized_coordinates=True,
-                line_thickness=4)
-            image_to_write = cv2.cvtColor(image_file_name, cv2.COLOR_RGB2BGR)
-            final_image = image_to_write.tolist()
-            # if show_video_window:
-            #     image_to_write = cv2.cvtColor(image_file_name, cv2.COLOR_RGB2BGR)
-            #     cv2.imwrite('data/results/example--0.jpg', image_to_write)
-            #     # cv2.imshow('ppe', image_file_name)
-            #     cv2.waitKey(5000)
-    return json.dumps(final_image)
+            print(warning_message)
+            if warning_message == False:
+                return json.dumps(image_file_name.tolist())
+            else: 
+                # with open('data/results/'+filename[-1][:-4]+'.txt', 'w') as f:
+                #     f.write(str(warning_message))
+            
+                vis_utils.visualize_boxes_and_labels_on_image_array(
+                    image_file_name,
+                    output_dict['detection_boxes'],
+                    output_dict['detection_classes'],
+                    output_dict['detection_scores'],
+                    category_index,
+                    warning_message,
+                    instance_masks=output_dict.get('detection_masks'),
+                    use_normalized_coordinates=True,
+                    line_thickness=4)
+                # image_to_write = cv2.cvtColor(image_file_name, cv2.COLOR_RGB2BGR)
+                final_image = image_file_name.tolist()
+                # if show_video_window:
+                #     image_to_write = cv2.cvtColor(image_file_name, cv2.COLOR_RGB2BGR)
+                #     cv2.imwrite('data/results/example--0.jpg', image_to_write)
+                #     # cv2.imshow('ppe', image_file_name)
+                #     cv2.waitKey(5000)
+                return json.dumps(final_image)
 
 
 def video_processing(graph, category_index, video_file_name, show_video_window, camera_id, run_flag, message_queue):
