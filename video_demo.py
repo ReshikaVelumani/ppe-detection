@@ -20,6 +20,7 @@ import visualization_utils as vis_utils
 import config
 import base64
 import json
+import pickle
 
 
 if StrictVersion(tf.__version__) < StrictVersion('1.12.0'):
@@ -202,13 +203,14 @@ def image_processing(graph, category_index, image_file_name, show_video_window):
                     use_normalized_coordinates=True,
                     line_thickness=4)
                 # image_to_write = cv2.cvtColor(image_file_name, cv2.COLOR_RGB2BGR)
-                final_image = image_file_name.tolist()
+                # final_image = image_file_name.tolist()
+                imdata = pickle.dumps(image_file_name)
                 # if show_video_window:
                 #     image_to_write = cv2.cvtColor(image_file_name, cv2.COLOR_RGB2BGR)
                 #     cv2.imwrite('data/results/example--0.jpg', image_to_write)
                 #     # cv2.imshow('ppe', image_file_name)
                 #     cv2.waitKey(5000)
-                return json.dumps(final_image)
+                return json.dumps({"image": base64.b64encode(imdata).decode('ascii')})
 
 
 def video_processing(graph, category_index, video_file_name, show_video_window, camera_id, run_flag, message_queue):
