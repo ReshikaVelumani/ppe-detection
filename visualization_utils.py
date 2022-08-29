@@ -734,7 +734,6 @@ def visualize_boxes_and_labels_on_image_array(
           box_count =+ 1
 
   final_output = [i for i in final_value if all(i.values())]
-  print(final_output)
 
   # Draw all boxes onto image.
   # for box, color in box_to_color_map.items():
@@ -770,7 +769,7 @@ def visualize_boxes_and_labels_on_image_array(
   #         radius=line_thickness / 2,
   #         use_normalized_coordinates=use_normalized_coordinates)
 
-  return box_to_color_map
+  return final_output
 
 
 def add_cdf_image_summary(values, name):

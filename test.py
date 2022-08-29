@@ -11,5 +11,4 @@ import pickle
 #test locally on image built on external drive
 resp = requests.post("http://0.0.0.0:5000", files={'file': open('data/example-2.jpg', 'rb')})
 
-# print(resp.json())
-print('OK')
+print(resp.json())

@@ -174,10 +174,9 @@ def image_processing(graph, category_index, image_file_name, show_video_window):
             warning_message = post_message(1, output_dict, image_file_name, 0.50)
         
             if warning_message == False:
-                red_image = cv2.resize(image_file_name, dsize=(800, 500), interpolation=cv2.INTER_CUBIC)
-                return json.dumps(red_image.tolist())
+                return 'Cannot make any detections please try again'
             else: 
-                vis_utils.visualize_boxes_and_labels_on_image_array(
+                bound_box = vis_utils.visualize_boxes_and_labels_on_image_array(
                     image_file_name,
                     output_dict['detection_boxes'],
                     output_dict['detection_classes'],
@@ -187,8 +186,7 @@ def image_processing(graph, category_index, image_file_name, show_video_window):
                     instance_masks=output_dict.get('detection_masks'),
                     use_normalized_coordinates=True,
                     line_thickness=4)
-                imdata = pickle.dumps(image_file_name)
-                return json.dumps({"image": base64.b64encode(imdata).decode('ascii')})
+                return json.dumps(bound_box)
 
 
 def video_processing(graph, category_index, video_file_name, show_video_window, camera_id, run_flag, message_queue):
