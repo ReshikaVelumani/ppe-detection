@@ -679,91 +679,98 @@ def visualize_boxes_and_labels_on_image_array(
   # Create a display string (and color) for every box location, group any boxes
   # that correspond to the same location.
   box_to_display_str_map = collections.defaultdict(list)
-  box_to_color_map = collections.defaultdict(str)
+  final_value = []
   box_to_instance_masks_map = {}
   box_to_instance_boundaries_map = {}
   box_to_keypoints_map = collections.defaultdict(list)
+
   if not max_boxes_to_draw:
     max_boxes_to_draw = boxes.shape[0]
   truth_false = [all(i.values()) for i in warning_message]
+
+  box_count = 0
   for i in range(min(max_boxes_to_draw, boxes.shape[0])):
+    box_to_color_map = {'box': None, 'display_str': None, 'color': None}
+
     if scores is None or scores[i] > min_score_thresh:
+      
       if category_index[classes[i]]['name'] == 'person':
         box = tuple(boxes[i].tolist())
+        box_to_color_map['box'] = box
+
         if instance_masks is not None:
           box_to_instance_masks_map[box] = instance_masks[i]
+
         if instance_boundaries is not None:
           box_to_instance_boundaries_map[box] = instance_boundaries[i]
+
         if keypoints is not None:
           box_to_keypoints_map[box].extend(keypoints[i])
+
         if scores is None:
-          box_to_color_map[box] = groundtruth_box_visualization_color
+          box_to_color_map['color'] = groundtruth_box_visualization_color
         else:
           display_str = ''
+
           if not skip_labels:
             if not agnostic_mode:
-              if True in truth_false:
-                # if classes[i] in category_index.keys():
-                #   class_name = category_index[classes[i]]['name']
-                # else:
-                #   class_name = 'N/A'
+              print(truth_false[box_count])
+              if truth_false[box_count]:
                 class_name = 'Not in Danger' 
+                print(class_name)
               else:
-                for clas in warning_message:
-                  keys = [k for k, v in clas.items() if v == False]
-                  class_name = 'Missing ' + str(keys)[1:-1]
+                keys = [k for k, v in warning_message[box_count].items() if v == False]
+                class_name = 'Missing ' + str(keys)[1:-1]
+                print(class_name)
+
               display_str = str(class_name)
-          # if not skip_scores:
-          #   if not display_str:
-          #     display_str = '{}%'.format(int(100*scores[i]))
-          #   else:
-          #     display_str = '{}: {}%'.format(display_str, int(100*scores[i]))
-          box_to_display_str_map[box].append(display_str)
-          if True in truth_false:         
-            if agnostic_mode:
-              box_to_color_map[box] = 'DarkOrange'
-            else:
-              # box_to_color_map[box] = STANDARD_COLORS[
-              #     classes[i] % len(STANDARD_COLORS)]
-              box_to_color_map[box] = 'green'
+          box_to_color_map['display_str'] = display_str
+           
+          if truth_false[box_count]:
+            box_to_color_map['color'] = 'green'
           else:
-            box_to_color_map[box] = 'blue'
+            box_to_color_map['color'] = 'red'
+          final_value.append(box_to_color_map)
+          box_count =+ 1
+
+  final_output = [i for i in final_value if all(i.values())]
+  print(final_output)
 
   # Draw all boxes onto image.
-  for box, color in box_to_color_map.items():
-    ymin, xmin, ymax, xmax = box
-    if instance_masks is not None:
-      draw_mask_on_image_array(
-          image,
-          box_to_instance_masks_map[box],
-          color=color
-      )
-    if instance_boundaries is not None:
-      draw_mask_on_image_array(
-          image,
-          box_to_instance_boundaries_map[box],
-          color='red',
-          alpha=1.0
-      )
-    draw_bounding_box_on_image_array(
-        image,
-        ymin,
-        xmin,
-        ymax,
-        xmax,
-        color=color,
-        thickness=line_thickness,
-        display_str_list=box_to_display_str_map[box],
-        use_normalized_coordinates=use_normalized_coordinates)
-    if keypoints is not None:
-      draw_keypoints_on_image_array(
-          image,
-          box_to_keypoints_map[box],
-          color=color,
-          radius=line_thickness / 2,
-          use_normalized_coordinates=use_normalized_coordinates)
+  # for box, color in box_to_color_map.items():
+  #   ymin, xmin, ymax, xmax = box
+  #   if instance_masks is not None:
+  #     draw_mask_on_image_array(
+  #         image,
+  #         box_to_instance_masks_map[box],
+  #         color=color
+  #     )
+  #   if instance_boundaries is not None:
+  #     draw_mask_on_image_array(
+  #         image,
+  #         box_to_instance_boundaries_map[box],
+  #         color='red',
+  #         alpha=1.0
+  #     )
+  #   draw_bounding_box_on_image_array(
+  #       image,
+  #       ymin,
+  #       xmin,
+  #       ymax,
+  #       xmax,
+  #       color=color,
+  #       thickness=line_thickness,
+  #       display_str_list=box_to_display_str_map[box],
+  #       use_normalized_coordinates=use_normalized_coordinates)
+  #   if keypoints is not None:
+  #     draw_keypoints_on_image_array(
+  #         image,
+  #         box_to_keypoints_map[box],
+  #         color=color,
+  #         radius=line_thickness / 2,
+  #         use_normalized_coordinates=use_normalized_coordinates)
 
-  return image
+  return box_to_color_map
 
 
 def add_cdf_image_summary(values, name):

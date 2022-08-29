@@ -152,21 +152,10 @@ def post_message(camera_id, output_dict, image, min_score_thresh):
    
     if len(persons) == 0:
         return False
-
-    # try:
-        # headers = {'Content-type': 'application/json'}
-        # if len(persons):
-        #     result = requests.post(config.detection_api, json=message, headers=headers)
-        #     print(result)
-        #     return True
-    # except requests.exceptions.ConnectionError:
-    #     print("Connect to backend failed")
     return message['persons']
 
 
 def image_processing(graph, category_index, image_file_name, show_video_window):
-    # img = cv2.imread(image_file_name)
-    # filename = image_file_name.split('/')
     image_expanded = np.expand_dims(image_file_name, axis=0)
     with graph.as_default():
         ops = tf.compat.v1.get_default_graph().get_operations()
@@ -181,17 +170,13 @@ def image_processing(graph, category_index, image_file_name, show_video_window):
                 tensor_dict[key] = tf.compat.v1.get_default_graph().get_tensor_by_name(
                     tensor_name)
         with tf.Session() as sess:
-            # image = image_file_name.numpy()
             output_dict = run_inference_for_single_image(image_expanded, sess, tensor_dict)
             warning_message = post_message(1, output_dict, image_file_name, 0.50)
-            print(warning_message)
+        
             if warning_message == False:
                 red_image = cv2.resize(image_file_name, dsize=(800, 500), interpolation=cv2.INTER_CUBIC)
                 return json.dumps(red_image.tolist())
             else: 
-                # with open('data/results/'+filename[-1][:-4]+'.txt', 'w') as f:
-                #     f.write(str(warning_message))
-            
                 vis_utils.visualize_boxes_and_labels_on_image_array(
                     image_file_name,
                     output_dict['detection_boxes'],
@@ -202,14 +187,7 @@ def image_processing(graph, category_index, image_file_name, show_video_window):
                     instance_masks=output_dict.get('detection_masks'),
                     use_normalized_coordinates=True,
                     line_thickness=4)
-                # image_to_write = cv2.cvtColor(image_file_name, cv2.COLOR_RGB2BGR)
-                # final_image = image_file_name.tolist()
                 imdata = pickle.dumps(image_file_name)
-                # if show_video_window:
-                #     image_to_write = cv2.cvtColor(image_file_name, cv2.COLOR_RGB2BGR)
-                #     cv2.imwrite('data/results/example--0.jpg', image_to_write)
-                #     # cv2.imshow('ppe', image_file_name)
-                #     cv2.waitKey(5000)
                 return json.dumps({"image": base64.b64encode(imdata).decode('ascii')})
 
 
@@ -218,9 +196,6 @@ def video_processing(graph, category_index, video_file_name, show_video_window, 
 
     if show_video_window:
         cv2.namedWindow('ppe', cv2.WINDOW_NORMAL)
-        # if config.display_full_screen:
-        #     cv2.setWindowProperty('ppe', cv2.WND_PROP_FULLSCREEN, cv2.WINDOW_FULLSCREEN)
-        # else:
         cv2.setWindowProperty('ppe', cv2.WND_PROP_FULLSCREEN, cv2.WINDOW_NORMAL)
 
     if (config.capture_image_width, config.capture_image_height) in config.supported_video_resolution:
@@ -294,13 +269,6 @@ def video_processing(graph, category_index, video_file_name, show_video_window, 
 
 
 def get_warning(file_name):
-    # parser = argparse.ArgumentParser(description="Hardhat and Vest Detection", add_help=True)
-    # parser.add_argument("--model_dir", type=str, required=True, help="path to model directory")
-    # parser.add_argument("--video_file_name", type=str, required=False, help="path to video file, or camera device, i.e /dev/video1")
-    # parser.add_argument("--show_video_window", type=int, required=False, help="the flag for showing the video window, 0 is not dispaly, 1 display")
-    # parser.add_argument("--camera_id", type=str, required=False, help="camera identifier")
-    # args = parser.parse_args()
-
     frozen_model_path = os.path.join('model/', "frozen_inference_graph.pb")
     if not os.path.exists(frozen_model_path):
         print("frozen_inference_graph.db file is not exist in model directory")
